@@ -1,27 +1,55 @@
 
-import Fastify from 'fastify'
-import userRoutes from './modules/user/user.route'
-import fastify from 'fastify';
+import fastify, { FastifyRequest } from 'fastify'
+
 import prisma from './utils/prisma';
 
 
-const server = Fastify()
 
-server.get('/', async function (request, response) {
+
+const server = fastify()
+
+server.get('/', async  (request, response) => {
  return {ststus: "OK"};
 });
 
 
-// fastify.post{'/user', async(request) => {
-//   return prisma.user.create({data: request.body})
-// }}
+server.post('/user', async (request) => {
+  return prisma.user.create({data: request.body})
+})
+
+server.get('/user', async() =>{
+ return prisma.user.findMany()
+})
+
+server.get('/user/:id', async(request) =>{
+  return prisma.user.findUnique({
+    where: {
+      id: String(request.params.id)
+    }
+  })
+ })
+
+ server.put('/user/:id', async(request) =>{
+  return prisma.user.findUnique({
+    where: {
+      id: String(request.params.id)
+    },
+    data: request.body
+  })
+ })
 
 
-
+server.delete('/user/:id', async (request,response) => {
+  return prisma.user.delete({
+    where: {
+      id: String(request.params.id)
+    },
+  })
+})
 
 async function main() {
 
-  server.register(userRoutes, {prefix: "api/users"} )
+ 
 
   try {
     await server.listen(3001, '0.0.0.0')
